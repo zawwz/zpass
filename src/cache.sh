@@ -32,7 +32,7 @@ delete_cache() {
 
 clean_cache() {
   # key cache
-  find "$cachepath" -type f ! -newermt @$(date -d "-$ZPASS_KEY_CACHE_TIME seconds" +%s) -print0 | xargs -0 rm
+  find "$cachepath" -type f ! -newermt @$(date -d "-$ZPASS_KEY_CACHE_TIME seconds" +%s) -print0 | xargs -0 rm -f
   # tmp folders older than 5 min
-  rm -rd $(find "$TMPDIR" -maxdepth 1 -type d -name 'zpass_*' ! -mmin 5)
+  find "$TMPDIR" -maxdepth 1 -type d -name 'zpass_*' ! -mmin 5 -print0 | xargs -0 rm -f
 }
