@@ -5,7 +5,7 @@ error(){
 }
 
 randalnum() {
-  tr -cd '[a-zA-Z]' < /dev/urandom | head -c $1
+  tr -cd 'a-zA-Z' < /dev/urandom | head -c $1
 }
 
 # $* = input
