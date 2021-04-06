@@ -15,7 +15,8 @@ usage()
   create                Create a file or change key
   get <path...>         Get values of targets
   copy <path>           Copy the target value to clipboard. Shortcut 'x'
-  set <path> <value>    Set the value of target
+  set <path> <value>    Set directly the value of target
+  file <path> <file>    Set the targetted value from file content
   add <path...>         Prompt for input value on paths
   new <path...>         Generate a random password at target
   rm <path...>          Delete targets

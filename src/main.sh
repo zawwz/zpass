@@ -20,15 +20,16 @@ case $arg in
   ch|cached)        get_key_cached >/dev/null 2>&1 ;;
   rmc|rm-cache)     delete_cache 0 >/dev/null 2>&1 ;;
   c|create)         create      ;;
-  t|tree)           _tree "$@"  ;;
-  s|set)            _set "$@"   ;;
-  a|add)            add "$@"    ;;
-  n|new)            new "$@"    ;;
-  g|get)            get "$@"    ;;
-  x|copy)           copy "$1"   ;;
-  e|exec)           archive_exec "$@" ;;
+  t|tree)           sanitize_paths "$@" && _tree "$@"  ;;
+  s|set)            sanitize_paths "$1" && _set "$@"   ;;
+  f|file)           sanitize_paths "$1" && fileset "$@" ;;
+  a|add)            sanitize_paths "$@" && add "$@"    ;;
+  n|new)            sanitize_paths "$@" && new "$@"    ;;
+  g|get)            sanitize_paths "$@" && get "$@"    ;;
+  x|copy)           sanitize_paths "$1" && copy "$1"   ;;
   l|ls|list)        sanitize_paths "$@" && __NOPACK=y archive_exec ls -Apw1 -- "$@"   ;;
   r|rm)             sanitize_paths "$@" && archive_exec rm -rf -- "$@"                ;;
-  m|mv)             sanitize_paths "$@" && archive_exec mv -f -- "$@"              ;;
+  m|mv)             sanitize_paths "$@" && move "$@"              ;;
+  e|exec)           archive_exec "$@" ;;
   *)                [ -n "$ZPASS_UNK_OP_CALL" ] && "$0" $ZPASS_UNK_OP_CALL "$arg" "$@" ;;
 esac

@@ -23,7 +23,7 @@ sanitize_paths()
   for N
   do
     echo "$N" | grep -q "^/" && echo "Path cannot start with /" >&2 && return 1
-    echo "$N" | grep -qw ".." && echo "Path cannot contain .." >&2 && return 1
+    echo "$N" | grep -Fqw ".." && echo "Path cannot contain .." >&2 && return 1
   done
   return 0
 }

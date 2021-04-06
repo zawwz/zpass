@@ -73,3 +73,23 @@ add()
     _set "$N" "$val" || return $?
   done
 }
+
+fileset()
+{
+  contents=$(cat "$2") || return $?
+  _set "$1" "$2"
+}
+
+move()
+{
+  [ $# -lt 1 ] && return 1
+  archive_exec sh -c 'set -e
+    for last ; do true ; done
+    if [ "$#" -gt 2 ] ; then
+      mkdir -p "$last"
+    else
+      mkdir -p "$(dirname "$last")"
+    fi
+    mv -f -- "$@"
+  ' sh "$@"
+}
