@@ -3,7 +3,7 @@ var_exclude = ZPASS_.* XDG_.* REMOTE_.* DISPLAY CONFIGFILE TMPDIR
 fct_exclude = _tty_on
 
 zpass: src/*
-	lxsh -o zpass -m --minify-quotes --minify-var --exclude-var "$(var_exclude)" --minify-fct --exclude-fct "$(fct_exclude)" --remove-unused src/main.sh
+	lxsh -o zpass -M --exclude-var "$(var_exclude)" --exclude-fct "$(fct_exclude)" src/main.sh
 
 debug: src/*
 	lxsh -o zpass src/main.sh

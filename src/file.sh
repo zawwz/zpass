@@ -1,13 +1,26 @@
 #!/bin/sh
 
 list_files() {
-  _cmd_ "cd '$datapath' 2>/dev/null && find . -maxdepth 1 -type f -regex '.*$ZPASS_EXTENSION\$'" | sed "s/$(escape_chars "$ZPASS_EXTENSION")\$//g; s|.*/||g"
+  if [ -n "$ZPASS_REMOTE_ADDR" ] ; then
+    echo "$cmd" | sftp_cmd -b- << EOF
+cd "$datapath"
+ls -1
+EOF
+  else
+    (
+      cd "$datapath"
+      ls -1
+    )
+  fi | grep "$(escape_chars "$ZPASS_EXTENSION")$"
 }
 
 remove_files()
 {
-  for N
-  do
-    _cmd_ "rm '$datapath/$N$ZPASS_EXTENSION'" || exit $?
-  done
+  if [ -n "$ZPASS_REMOTE_ADDR" ] ; then
+    echo "$cmd" | sftp_cmd -b- << EOF
+rm "$datapath/$N$ZPASS_EXTENSION"
+EOF
+  else
+      rm "$datapath/$N$ZPASS_EXTENSION"
+  fi
 }

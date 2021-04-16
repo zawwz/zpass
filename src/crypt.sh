@@ -8,8 +8,9 @@ encrypt() {
 # $1 = key , $2 = keyfile to write
 decrypt_with_key()
 {
-  gpg --pinentry-mode loopback --batch --passphrase "$1" -o - -d "$file" 2>/dev/null && ret=$? && [ -n "$2" ] && echo "$1" > "$2"
-  return $ret
+  gpg --pinentry-mode loopback --batch --passphrase "$1" -o - -d "$file" 2>/dev/null || return $?
+  [ -n "$2" ] && echo "$1" > "$2"
+  return 0
 }
 
 # $1 = keyfile to write
@@ -18,11 +19,7 @@ decrypt()
   # get remote file
   [ -n "$ZPASS_REMOTE_ADDR" ] && {
     file="$TMPDIR/zpass_$(filehash)$ZPASS_EXTENSION"
-    [ -z "$ZPASS_PATH" ] && datapath="~/.local/share/zpass"
-    if [ -n "$ZPASS_SSH_ID" ]
-    then scp -i "$ZPASS_SSH_ID" "$ZPASS_REMOTE_ADDR:$datapath/$ZPASS_FILE$ZPASS_EXTENSION" "$file" >/dev/null || return $?
-    else scp "$ZPASS_REMOTE_ADDR:$datapath/$ZPASS_FILE$ZPASS_EXTENSION" "$file" >/dev/null || return $?
-    fi
+    sftp_download "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" "$file" >/dev/null || return $?
   }
   cat "$file" >/dev/null 2>&1 || { echo "File doesn't exist. Use 'zpass create' to create the file" >&2 && return 1; } # no file
 

@@ -27,7 +27,7 @@ case $arg in
   n|new)            sanitize_paths "$@" && new "$@"    ;;
   g|get)            sanitize_paths "$@" && get "$@"    ;;
   x|copy)           sanitize_paths "$1" && copy "$1"   ;;
-  l|ls|list)        sanitize_paths "$@" && __NOPACK=y archive_exec ls -Apw1 -- "$@"   ;;
+  l|ls|list)        sanitize_paths "$@" && __NOPACK=y archive_exec ls -Ap1 -- "$@"   ;;
   r|rm)             sanitize_paths "$@" && archive_exec rm -rf -- "$@"                ;;
   m|mv)             sanitize_paths "$@" && move "$@"              ;;
   e|exec)           archive_exec "$@" ;;

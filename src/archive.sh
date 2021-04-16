@@ -7,7 +7,7 @@ unpack() {
   (
     set -e
     cd "$1"
-    decrypt "$2" | tar -xf - 2>/dev/null
+    decrypt "$2" | tar -xf -
   )
 }
 
@@ -28,13 +28,10 @@ pack()
   ) || return $?
   if [ -n "$ZPASS_REMOTE_ADDR" ]
   then
-    [ -z "$ZPASS_PATH" ] && datapath="~/.local/share/zpass"
-    if [ -n "$ZPASS_SSH_ID" ]
-    then scp -i "$ZPASS_SSH_ID" "$1/$archive" "$ZPASS_REMOTE_ADDR:$datapath/$ZPASS_FILE$ZPASS_EXTENSION" >/dev/null || return $?
-    else scp "$1/$archive" "$ZPASS_REMOTE_ADDR:$datapath/$ZPASS_FILE$ZPASS_EXTENSION" >/dev/null || return $?
-    fi
+    ret=0
+    sftp_upload "$1/$archive" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
     rm -f "$1/$archive" 2>/dev/null
-    return 0
+    return $ret
   else
     mv -f "$1/$archive" "$file"
   fi
@@ -89,12 +86,11 @@ create() {
       return 1
     }
     [ -n "$ZPASS_REMOTE_ADDR" ] && {
+      ret=0
       ssh "$ZPASS_REMOTE_ADDR" "mkdir -p '$datapath'"
-      if [ -n "$ZPASS_SSH_ID" ]
-      then scp -i "$ZPASS_SSH_ID" "$file" "$ZPASS_REMOTE_ADDR:$datapath/$ZPASS_FILE$ZPASS_EXTENSION" >/dev/null || return $?
-      else scp "$file" "$ZPASS_REMOTE_ADDR:$datapath/$ZPASS_FILE$ZPASS_EXTENSION" >/dev/null || return $?
-      fi
+      sftp_upload "$file" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
       rm -rf "$file" 2>/dev/null
+      return $ret
     }
   fi
   return 0
