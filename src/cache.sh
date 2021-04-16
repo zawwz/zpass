@@ -20,11 +20,7 @@ get_key_cached() {
 delete_cache() {
   if [ "$1" -gt 0 ] 2>/dev/null
   then
-    for I in $(screen -ls | grep "zpass_$(keyfile)" | awk '{print $1}')
-    do
-      screen -S "$I" -X stuff "^C"
-    done
-    screen -dmS "zpass_$(keyfile)" sh -c "sleep $1 ; $0 rmc" # call zpass with cache delete
+    nohup sh -c "sleep $1;rm -f '$cachepath/$(keyfile)'" >/dev/null 2>&1 &
   else
     rm -f "$cachepath/$(keyfile)" 2>/dev/null
   fi

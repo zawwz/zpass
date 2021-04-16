@@ -10,7 +10,7 @@ _tree()
     for N
     do
       [ $# -gt 1 ] && echo "> $N:"
-      echo "$fulltree" | grep "^$(escape_chars "$N")" | sed "s|^$N||g ; "' s|^/||g ; /\/$/d ; /^$/d'
+      echo "$fulltree" | grep "^$(escape_chars "$N")" | sed "s|^$N||g;s|^/||g;/\/$/d;/^$/d"
     done
 
   else
@@ -22,7 +22,7 @@ _tree()
 get()
 {
   [ $# -lt 1 ] && return 1
-  __NOPACK=y archive_exec sh -c '
+  __NOPACK=y archive_exec sh -c '#LXSH_PARSE_MINIFY
   for N
   do
     (
@@ -31,7 +31,7 @@ get()
       exit 1
     ) || { echo "$N: not found" >&2 && exit 1; }
   done
-  ' sh "$@"
+  ' zpass "$@"
 }
 
 # $1 = path
@@ -45,13 +45,15 @@ copy()
 new()
 {
   [ $# -lt 1 ] && return 1
-  archive_exec sh -c "
+  archive_exec sh -c '#LXSH_PARSE_MINIFY
+    len=$1
+    shift 1
     for N
     do
-      mkdir -p \"\$(dirname \"\$N\")\" || exit \$?
-      { tr -cd 'a-zA-Z0-9!-.' < /dev/urandom | head -c $ZPASS_RAND_LEN && echo; } > \"\$N\" || exit \$?
+      mkdir -p "$(dirname "$N")" || exit $?
+      { tr -cd "a-zA-Z0-9\!-." < /dev/urandom | head -c$len && echo; } > "$N" || exit $?
     done
-  " sh "$@"
+  ' zpass "$ZPASS_RAND_LEN" "$@"
 }
 
 # $1 = path , $@ = value
@@ -60,7 +62,9 @@ _set()
   [ $# -lt 1 ] && return 1
   ref=$1
   shift 1
-  archive_exec sh -c "mkdir -p '$(dirname "$ref")' && printf '%s\n' '$*' > '$ref'"
+  archive_exec sh -c '#LXSH_PARSE_MINIFY
+    mkdir -p "$(dirname "$1")" && printf "%s\n" "$2" > "$1"
+  ' zpass "$ref" "$*"
 }
 
 add()
@@ -77,13 +81,14 @@ add()
 fileset()
 {
   contents=$(cat "$2") || return $?
-  _set "$1" "$2"
+  _set "$1" "$contents"
 }
 
 move()
 {
   [ $# -lt 1 ] && return 1
-  archive_exec sh -c 'set -e
+  archive_exec sh -c '#LXSH_PARSE_MINIFY
+    set -e
     for last ; do true ; done
     if [ "$#" -gt 2 ] ; then
       mkdir -p "$last"
@@ -91,5 +96,5 @@ move()
       mkdir -p "$(dirname "$last")"
     fi
     mv -f -- "$@"
-  ' sh "$@"
+  ' zpass "$@"
 }

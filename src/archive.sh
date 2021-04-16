@@ -15,7 +15,7 @@ unpack() {
 pack()
 {
   # clean empty dirs
-  archive="archive_$(randalnum 5)"
+  archive="archive_$(randalnum 20)"
   (
     cd "$1" || exit $?
     if [ -n "$2" ]
@@ -46,8 +46,8 @@ archive_exec()
 {
   err=0
   # tmp files
-  tmpdir="$TMPDIR/zpass_$(randalnum 5)"
-  keyfile="$tmpdir/$(randalnum 5).key"
+  tmpdir="$TMPDIR/zpass_$(randalnum 20)"
+  keyfile="$tmpdir/$(randalnum 20).key"
   # operation
   (
     # unpack
@@ -67,7 +67,7 @@ archive_exec()
 create() {
   if [ -f "$file" ]
   then
-    tmpdir="$TMPDIR/zpass_$(randalnum 5)"
+    tmpdir="$TMPDIR/zpass_$(randalnum 20)"
     # pack n repack with no tmp key: create new
     unpack "$tmpdir" || return $?
     pack "$tmpdir" || { echo "Encryption error" >&2 && return 1 ; }

@@ -30,17 +30,18 @@ sanitize_paths()
 
 # $1 = file
 getpath() {
-  if [ -n "$ZPASS_REMOTE_ADDR" ]
-  then
-    echo "$ZPASS_REMOTE_PORT:$ZPASS_REMOTE_ADDR:$file"
+  if [ -n "$ZPASS_REMOTE_ADDR" ] ; then
+    echo "$ZPASS_REMOTE_PORT:$ZPASS_REMOTE_ADDR:$FILE"
+  elif [ "$(echo "$FILE" | cut -c1)" = / ] ; then
+    echo "$FILE"
   else
-    echo "$(pwd)/$file"
+    echo "$(pwd)/$FILE"
   fi
 }
 
 # $1 = file
 filehash(){
-  getpath "$file" | md5sum | cut -d' ' -f1
+  getpath "$FILE" | md5sum | cut -d' ' -f1
 }
 
 keyfile(){

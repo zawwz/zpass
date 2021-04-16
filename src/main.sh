@@ -17,8 +17,8 @@ case $arg in
   lsf|list-files)   list_files ;;
   rmf|rm-file)      remove_files "$@" ;;
   cc|cache-clear)   clear_cache 2>/dev/null ;;
-  ch|cached)        get_key_cached >/dev/null 2>&1 ;;
-  rmc|rm-cache)     delete_cache 0 >/dev/null 2>&1 ;;
+  ch|cached)        get_key_cached >/dev/null ;;
+  rmc|rm-cache)     delete_cache 0 >/dev/null ;;
   c|create)         create      ;;
   t|tree)           sanitize_paths "$@" && _tree "$@"  ;;
   s|set)            sanitize_paths "$1" && _set "$@"   ;;

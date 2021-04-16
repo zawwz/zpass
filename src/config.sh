@@ -12,7 +12,7 @@ configpath="$HOME/.config/zpass"
 [ -z "$TMPDIR" ] && TMPDIR=/tmp
 
 # stash env config
-tmpenv="$TMPDIR/zpassenv_$(randalnum 5)"
+tmpenv="$TMPDIR/zpassenv_$(randalnum 20)"
 env | grep '^ZPASS_.*=' | sed "s/'/'\\\''/g;s/=/='/;s/$/'/g" > "$tmpenv"
 
 # load config file
@@ -41,6 +41,7 @@ datapath="${datapath#\~/}"
 [ -z "$ZPASS_REMOTE_ADDR" ] && [ "$(echo "$datapath" | cut -c1)" != '/' ] && datapath="$HOME/$datapath"
 
 file="$datapath/$ZPASS_FILE$ZPASS_EXTENSION"
+FILE=$file
 
 [ -z "$ZPASS_REMOTE_ADDR" ] && { mkdir -p "$datapath" 2>/dev/null || error 1 "Could not create '$datapath'"; }
 mkdir -p "$cachepath" 2>/dev/null && chmod -R go-rwx "$cachepath" 2>/dev/null
