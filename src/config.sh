@@ -7,7 +7,6 @@ configpath="$HOME/.config/zpass"
 [ -n "$XDG_CONFIG_HOME" ] && configpath="$XDG_CONFIG_HOME/zpass"
 [ -n "$XDG_CACHE_HOME" ] && cachepath="$XDG_CACHE_HOME/zpass"
 [ -z "$CONFIGFILE" ] && CONFIGFILE="$configpath/default.conf"
-[ -n "$XDG_DATA_HOME" ] && [ -z "$ZPASS_REMOTE_ADDR" ] && datapath="$XDG_DATA_HOME/zpass"
 
 [ -z "$TMPDIR" ] && TMPDIR=/tmp
 
@@ -17,6 +16,8 @@ env | grep '^ZPASS_.*=' | sed "s/'/'\\\''/g;s/=/='/;s/$/'/g" > "$tmpenv"
 
 # load config file
 [ -f "$CONFIGFILE" ] && { . "$CONFIGFILE" || exit $? ; }
+
+[ -n "$XDG_DATA_HOME" ] && [ -z "$ZPASS_REMOTE_ADDR" ] && datapath="$XDG_DATA_HOME/zpass"
 
 . "$tmpenv" || exit $?
 rm -f "$tmpenv" 2>/dev/null
