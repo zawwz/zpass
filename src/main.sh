@@ -1,5 +1,7 @@
 #!/bin/lxsh
 
+[ "$DEBUG" = true ] && set -x
+
 %include util.sh config.sh *.sh
 
 ## pre exec

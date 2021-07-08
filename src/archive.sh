@@ -29,7 +29,7 @@ pack()
   if [ -n "$ZPASS_REMOTE_ADDR" ]
   then
     ret=0
-    sftp_upload "$1/$archive" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
+    remote upload "$1/$archive" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
     rm -f "$1/$archive" 2>/dev/null
     return $ret
   else
@@ -88,7 +88,7 @@ create() {
     [ -n "$ZPASS_REMOTE_ADDR" ] && {
       ret=0
       ssh "$ZPASS_REMOTE_ADDR" "mkdir -p '$datapath'"
-      sftp_upload "$file" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
+      remote upload "$file" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
       rm -rf "$file" 2>/dev/null
       return $ret
     }
