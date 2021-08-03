@@ -26,7 +26,7 @@ pack()
     fi
     tar -cf - -- * | encrypt "$key" > "$1/$archive" || exit $?
   ) || return $?
-  if [ -n "$ZPASS_REMOTE_ADDR" ]
+  if [ -n "$remote_host" ]
   then
     ret=0
     remote upload "$1/$archive" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
@@ -61,7 +61,7 @@ archive_exec()
 }
 
 # no argument
-create() {
+create_file() {
   if [ -f "$file" ]
   then
     tmpdir="$TMPDIR/zpass_$(randalnum 20)"
@@ -70,8 +70,8 @@ create() {
     pack "$tmpdir" || { echo "Encryption error" >&2 && return 1 ; }
     rm -rf "$tmpdir"
   else
-    # if remote: file tmp
-    [ -n "$ZPASS_REMOTE_ADDR" ] && {
+    # if remote: file tmp and try to get file
+    [ -n "$remote_host" ] && {
       file="$TMPDIR/zpass_$(filehash)$ZPASS_EXTENSION"
     }
     # get key
@@ -85,10 +85,10 @@ create() {
       rm "$file"
       return 1
     }
-    [ -n "$ZPASS_REMOTE_ADDR" ] && {
+    # if is remote: create remote file
+    [ -n "$remote_host" ] && {
       ret=0
-      ssh "$ZPASS_REMOTE_ADDR" "mkdir -p '$datapath'"
-      remote upload "$file" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
+      remote create "$file" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
       rm -rf "$file" 2>/dev/null
       return $ret
     }

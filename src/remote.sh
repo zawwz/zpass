@@ -6,24 +6,22 @@ cond_gen() {
 # $@ = command
 ftps_cmd() {
   shift 3
-  user=${ZPASS_REMOTE_ADDR%%@*}
-  host=${ZPASS_REMOTE_ADDR#*@}
   lftp << EOF
 set ftp:ssl-allow true ; set ssl:verify-certificate no ; set ftp:ssl-auth TLS
-open ftp://$host$(cond_gen "$ZPASS_REMOTE_PORT" ":")
-user $user $ZPASS_REMOTE_PASSWORD
+open ftp://$remote_host$(cond_gen "$ZPASS_REMOTE_PORT" ":")
+user $remote_user $ZPASS_REMOTE_PASSWORD
 $(cat)
 EOF
 }
 
 # $@ = args
 sftp_cmd() {
-  { sftp -b- $(cond_gen "$ZPASS_REMOTE_PORT" -P " ") $(cond_gen "$ZPASS_SSH_ID" -i " ") "$@" "$ZPASS_REMOTE_ADDR" || return $?; } | grep -v "^sftp>" || true
+  { sftp -oStrictHostKeyChecking=no -b- $(cond_gen "$ZPASS_REMOTE_PORT" -P " ") $(cond_gen "$ZPASS_SSH_ID" -i " ") "$@" "${remote_user+${remote_user}@}$remote_host" || return $?; } | grep -v "^sftp>" || true
 }
 
 # $@ args
 scp_cmd() {
-  scp $(cond_gen "$ZPASS_REMOTE_PORT" -P " ")  $(cond_gen "$ZPASS_SSH_ID" -i " ") "$@"
+  scp -oStrictHostKeyChecking=no -q $(cond_gen "$ZPASS_REMOTE_PORT" -P " ")  $(cond_gen "$ZPASS_SSH_ID" -i " ") "$@"
 }
 
 # $@ = args
@@ -34,7 +32,8 @@ ssh_cmd() {
 # $1 = protocol , $2 = local file , $3 = remote file
 upload() {
   case $1 in
-    scp) scp_cmd "$2" "$ZPASS_REMOTE_ADDR:$3" ;;
+    scp) scp_cmd "$2" "${remote_user+${remote_user}@}$remote_host:$3" ;;
+    webdav) webdav_cmd "$3" -T "$2" ;;
     sftp|ftps) "$1"_cmd >/dev/null << EOF
 put "$2" "$3"
 EOF
@@ -44,10 +43,12 @@ EOF
 # $1 = protocol, $2 = remote file , $3 = local file
 download() {
   case $1 in
-    scp) scp_cmd "$ZPASS_REMOTE_ADDR:$2" "$3" ;;
+    scp) scp_cmd "${remote_user+${remote_user}@}$remote_host:$2" "$3" ;;
+    webdav) webdav_cmd "$2" > "$3" ;;
     sftp|ftps) ${1}_cmd >/dev/null << EOF
 get "$2" "$3"
 EOF
+;;
   esac
 }
 
@@ -55,7 +56,8 @@ EOF
 list() {
   case $1 in
     scp) ssh_cmd "cd '$datapath' && ls -1" ;;
-    sftp|ftps) ${1}_cmd >/dev/null << EOF
+    webdav) webdav_list ;;
+    sftp|ftps) ${1}_cmd << EOF
 cd "$datapath"
 ls -1
 EOF
@@ -66,8 +68,21 @@ EOF
 delete() {
   case $1 in
     scp) ssh_cmd "rm '$2'" ;;
+    webdav) webdav_delete "$2" ;;
     sftp|ftps) ${1}_cmd >/dev/null << EOF
 rm "$2"
+EOF
+  esac
+}
+
+# $1 = protocol , $2 = local file , $3 = remote file
+create() {
+  case $1 in
+    scp) ssh_cmd "mkdir -p '$(dirname "$3")' && cat > '$3'" < "$2" ;;
+    webdav) webdav_create "$2" "$3" ;;
+    sftp|ftps) ${1}_cmd >/dev/null << EOF
+mkdir "$datapath"
+put "$2" "$3"
 EOF
   esac
 }
@@ -77,7 +92,7 @@ remote() {
   action=$1
   shift 1
   case "${ZPASS_REMOTE_METHOD-scp}" in
-    scp|sftp|ftps) $action "${ZPASS_REMOTE_METHOD-scp}" "$@" ;;
-    *) echo "Unknown remote method: $ZPASS_REMOTE_METHOD" ;;
+    scp|sftp|ftps|webdav) $action "${ZPASS_REMOTE_METHOD-scp}" "$@" ;;
+    *) echo "Unknown remote method: $ZPASS_REMOTE_METHOD" >&2 ;;
   esac
 }

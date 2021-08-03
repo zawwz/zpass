@@ -21,7 +21,7 @@ case $arg in
   cc|cache-clear)   clear_cache 2>/dev/null ;;
   ch|cached)        get_key_cached >/dev/null ;;
   rmc|rm-cache)     delete_cache 0 >/dev/null ;;
-  c|create)         create      ;;
+  c|create)         create_file ;;
   t|tree)           sanitize_paths "$@" && _tree "$@"  ;;
   s|set)            sanitize_paths "$1" && _set "$@"   ;;
   f|file)           sanitize_paths "$1" && fileset "$@" ;;

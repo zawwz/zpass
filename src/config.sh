@@ -6,7 +6,7 @@ cachepath="$HOME/.cache/zpass"
 configpath="$HOME/.config/zpass"
 [ -n "$XDG_CONFIG_HOME" ] && configpath="$XDG_CONFIG_HOME/zpass"
 [ -n "$XDG_CACHE_HOME" ] && cachepath="$XDG_CACHE_HOME/zpass"
-[ -z "$CONFIGFILE" ] && CONFIGFILE="$configpath/default.conf"
+CONFIGFILE=${CONFIGFILE-$configpath/default.conf}
 
 [ -z "$TMPDIR" ] && TMPDIR=/tmp
 
@@ -23,16 +23,16 @@ env | grep '^ZPASS_.*=' | sed "s/'/'\\\''/g;s/=/='/;s/$/'/g" > "$tmpenv"
 rm -f "$tmpenv" 2>/dev/null
 
 # resolve zpass_path
-[ -n "$ZPASS_PATH"        ] && datapath="$ZPASS_PATH"
-[ -n "$ZPASS_CACHE_PATH"  ] && cachepath="$ZPASS_CACHE_PATH"
+datapath=${ZPASS_PATH-$datapath}
+cachepath=${ZPASS_CACHE_PATH-$cachepath}
 
-# default ZPASS config
-[ -z "$ZPASS_FILE"            ] && ZPASS_FILE=default
-[ -z "$ZPASS_EXTENSION"       ] && ZPASS_EXTENSION=.tar.gpg
-[ -z "$ZPASS_KEY_CACHE_TIME"  ] && ZPASS_KEY_CACHE_TIME=60 # in seconds
-[ -z "$ZPASS_CLIPBOARD_TIME"  ] && ZPASS_CLIPBOARD_TIME=30 # in seconds
-[ -z "$ZPASS_UNK_OP_CALL"     ] && ZPASS_UNK_OP_CALL=copy
-[ -z "$ZPASS_RAND_LEN"        ] && ZPASS_RAND_LEN=20
+# default ZPASS
+ZPASS_FILE=${ZPASS_FILE-default}
+ZPASS_EXTENSION=${ZPASS_EXTENSION-.tar.gpg}
+ZPASS_KEY_CACHE_TIME=${ZPASS_KEY_CACHE_TIME-60}
+ZPASS_CLIPBOARD_TIME=${ZPASS_CLIPBOARD_TIME-30}
+ZPASS_UNK_OP_CALL=${ZPASS_UNK_OP_CALL-copy}
+ZPASS_RAND_LEN=${ZPASS_RAND_LEN-20}
 
 # datapath resolution
 # remove tildes
@@ -44,5 +44,17 @@ datapath="${datapath#\~/}"
 file="$datapath/$ZPASS_FILE$ZPASS_EXTENSION"
 FILE=$file
 
-[ -z "$ZPASS_REMOTE_ADDR" ] && { mkdir -p "$datapath" 2>/dev/null || error 1 "Could not create '$datapath'"; }
+## Resolve remote
+
+remote_user=$ZPASS_REMOTE_USER
+
+# remote addr has @
+if [ "${ZPASS_REMOTE_ADDR}" != "${ZPASS_REMOTE_ADDR##*@*}" ] ; then
+  remote_user=${ZPASS_REMOTE_ADDR%%@*}
+  remote_host=${ZPASS_REMOTE_ADDR#*@}
+else
+  remote_host=$ZPASS_REMOTE_ADDR
+fi
+
+[ -z "$remote_host" ] && { mkdir -p "$datapath" 2>/dev/null || error 1 "Could not create '$datapath'"; }
 mkdir -p "$cachepath" 2>/dev/null && chmod -R go-rwx "$cachepath" 2>/dev/null

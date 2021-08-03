@@ -17,7 +17,7 @@ decrypt_with_key()
 decrypt()
 {
   # get remote file
-  [ -n "$ZPASS_REMOTE_ADDR" ] && {
+  [ -n "$remote_host" ] && {
     file="$TMPDIR/zpass_$(filehash)$ZPASS_EXTENSION"
     remote download "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" "$file" >/dev/null || return $?
   }
@@ -46,7 +46,7 @@ decrypt()
   fi
 
   # remove temporary file
-  [ -n "$ZPASS_REMOTE_ADDR" ] && rm -rf "$file" 2>/dev/null
+  [ -n "$remote_host" ] && rm -rf "$file" 2>/dev/null
 
   [ $ret -ne 0 ] && { echo "Could not decrypt '$file'" >&2 ; }
   return $ret
