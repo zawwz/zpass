@@ -43,20 +43,20 @@ archive_exec()
 {
   err=0
   # tmp files
-  tmpdir="$TMPDIR/zpass_$(randalnum 20)"
-  keyfile="$tmpdir/$(randalnum 20).key"
+  archive_tmpdir="$TMPDIR/zpass_$(randalnum 20)"
+  keyfile="$archive_tmpdir/$(randalnum 20).key"
   # operation
   (
     # unpack
-    unpack "$tmpdir/archive" "$keyfile" || exit $?
+    unpack "$archive_tmpdir/archive" "$keyfile" || exit $?
     # execute
-    (cd "$tmpdir/archive" && "$@") || exit $?
+    (cd "$archive_tmpdir/archive" && "$@") || exit $?
     # repack
-    [ -z "$__NOPACK" ] && { pack "$tmpdir/archive" "$keyfile" || exit $?; }
+    [ -z "$__NOPACK" ] && { pack "$archive_tmpdir/archive" "$keyfile" || exit $?; }
     exit 0
   ) || err=$?
   # cleanup
-  rm -rf "$tmpdir"
+  rm -rf "$archive_tmpdir"
   return $err
 }
 
@@ -64,11 +64,11 @@ archive_exec()
 create_file() {
   if [ -f "$file" ]
   then
-    tmpdir="$TMPDIR/zpass_$(randalnum 20)"
+    archive_tmpdir="$TMPDIR/zpass_$(randalnum 20)"
     # pack n repack with no tmp key: create new
-    unpack "$tmpdir" || return $?
-    pack "$tmpdir" || { echo "Encryption error" >&2 && return 1 ; }
-    rm -rf "$tmpdir"
+    unpack "$archive_tmpdir" || return $?
+    pack "$archive_tmpdir" || { echo "Encryption error" >&2 && return 1 ; }
+    rm -rf "$archive_tmpdir"
   else
     # if remote: file tmp and try to get file
     [ -n "$remote_host" ] && {

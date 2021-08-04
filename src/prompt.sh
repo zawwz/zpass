@@ -4,8 +4,7 @@
 console_prompt_hidden()
 {
   (
-    _tty_on() { stty echo; }
-    trap _tty_on INT
+    trap _stop INT
     local prompt
     printf "%s" "$1" >&2
     stty -echo

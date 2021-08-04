@@ -12,7 +12,6 @@ write_cache() {
 }
 
 get_key_cached() {
-  [ ! -f "$file" ] && return 0
   cat "$cachepath/$(keyfile)" 2>/dev/null
 }
 

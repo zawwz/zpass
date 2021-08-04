@@ -1,5 +1,10 @@
 #!/bin/lxsh
 
+_stop() {
+  stty echo
+  rm -rf "$archive_tmpdir"
+}
+
 [ "$DEBUG" = true ] && set -x
 
 %include util.sh config.sh *.sh
@@ -7,7 +12,7 @@
 ## pre exec
 
 clean_cache 2>/dev/null
-[ $# -lt 1 ] && usage && return 1
+[ $# -lt 1 ] && usage && exit 1
 
 arg=$1
 shift 1
