@@ -19,6 +19,7 @@ decrypt()
   # get remote file
   [ -n "$remote_host" ] && {
     file="$TMPDIR/zpass_$(filehash)$ZPASS_EXTENSION"
+    tmpfile=$file
     remote download "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" "$file" >/dev/null || return $?
   }
   cat "$file" >/dev/null 2>&1 || { echo "File doesn't exist. Use 'zpass create' to create the file" >&2 && return 1; } # no file

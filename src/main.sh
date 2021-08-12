@@ -1,8 +1,9 @@
 #!/bin/lxsh
 
+unset archive_tmpdir tmpfile
 _stop() {
   stty echo
-  rm -rf "$archive_tmpdir"
+  rm -rf "$archive_tmpdir" "$tmpfile"
 }
 
 [ "$DEBUG" = true ] && set -x

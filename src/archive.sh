@@ -62,18 +62,50 @@ archive_exec()
 
 # no argument
 create_file() {
-  if [ -f "$file" ]
-  then
+  if [ -n "$remote_host" ] ; then
+    file="$TMPDIR/zpass_$(filehash)$ZPASS_EXTENSION"
+    tmpfile=$file
+    if remote download "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" "$file" >/dev/null 2>&1 ; then
+      local archive_tmpdir="$TMPDIR/zpass_$(randalnum 20)"
+
+      # unpack locally
+      remote_host= unpack "$archive_tmpdir" || {
+        rm -rf "$archive_tmpdir" "$file"
+        return 1
+      }
+      # pack and send
+      pack "$archive_tmpdir" || {
+        echo "Encryption error" >&2
+        rm -rf "$archive_tmpdir" "$file"
+        return 1
+      }
+      # cleanup
+      rm -rf "$archive_tmpdir" "$file"
+    else
+      # get key
+      [ -z "$ZPASS_KEY" ] && {
+        ZPASS_KEY=$(new_key_with_confirm) || { echo "Cancelled" >&2 && return 100 ; }
+      }
+      # create archive
+      tar -cf - -T /dev/null | encrypt "$ZPASS_KEY" > "$file" || {
+        echo "Encryption error" >&2
+        rm -f "$file"
+        return 1
+      }
+
+      ret=0
+      remote create "$file" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
+      rm -f "$file"
+      return $ret
+    fi
+
+  elif [ -f "$file" ] ; then
     archive_tmpdir="$TMPDIR/zpass_$(randalnum 20)"
     # pack n repack with no tmp key: create new
     unpack "$archive_tmpdir" || return $?
     pack "$archive_tmpdir" || { echo "Encryption error" >&2 && return 1 ; }
     rm -rf "$archive_tmpdir"
   else
-    # if remote: file tmp and try to get file
-    [ -n "$remote_host" ] && {
-      file="$TMPDIR/zpass_$(filehash)$ZPASS_EXTENSION"
-    }
     # get key
     [ -z "$ZPASS_KEY" ] && {
       ZPASS_KEY=$(new_key_with_confirm) || { echo "Cancelled" >&2 && return 100 ; }
@@ -81,16 +113,8 @@ create_file() {
     # create archive
     tar -cf - -T /dev/null | encrypt "$ZPASS_KEY" > "$file" || {
       echo "Encryption error" >&2
-      # echo "$tmperr" >&2
       rm "$file"
       return 1
-    }
-    # if is remote: create remote file
-    [ -n "$remote_host" ] && {
-      ret=0
-      remote create "$file" "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" || ret=$?
-      rm -rf "$file" 2>/dev/null
-      return $ret
     }
   fi
   return 0
