@@ -48,9 +48,9 @@ _zpass_completion()
     if _completion_check_expands "$cur" "${WORDS[@]}" ; then
       N=0
       if [ -n "$cur" ] ; then
-      	for I in "${WORDS[@]}" ; do
-      		[ "$I" != "${I#"$cur"}" ] && COMPREPLY[N++]=$I
-      	done
+        for I in "${WORDS[@]}" ; do
+          [ "$I" != "${I#"$cur"}" ] && COMPREPLY[N++]=$I
+        done
       else
         COMPREPLY=("${WORDS[@]}")
       fi
@@ -62,24 +62,25 @@ _zpass_completion()
     else
       if [ -n "$cur" ] ; then
         N=0
-      	for I in "${WORDS[@]}" ; do
-      		[ "$I" != "${I#"$cur"}" ] && COMPREPLY[N++]=$I
-      	done
+        for I in "${WORDS[@]}" ; do
+          [ "$I" != "${I#"$cur"}" ] && COMPREPLY[N++]=$I
+        done
       else
         COMPREPLY=("${WORDS[@]}")
       fi
     fi
+    return
 
   else
 
-  	if [ "$COMP_CWORD" = "1" ] ; then
-  		_compwords="$_cw1"
-  	elif [ "$COMP_CWORD" -gt "1" ] && echo " $_cw1_files " | grep -qF -- " ${COMP_WORDS[1]} " ; then
-  		_compwords=$(zpass lsf)
-  	fi
-  	for I in $_compwords ; do
-  		WORDS[N++]="$I "
-  	done
+    if [ "$COMP_CWORD" = "1" ] ; then
+      _compwords="$_cw1"
+    elif [ "$COMP_CWORD" -gt "1" ] && echo " $_cw1_files " | grep -qF -- " ${COMP_WORDS[1]} " ; then
+      _compwords=$(zpass lsf)
+    fi
+    for I in $_compwords ; do
+      WORDS[N++]="$I "
+    done
 
     N=0
     if [ -n "$cur" ] ; then
@@ -89,7 +90,7 @@ _zpass_completion()
     else
       COMPREPLY=("${WORDS[@]}")
     fi
-
+  [ ${#COMPREPLY[@]} -eq 0 ] && _filedir
   fi
 }
 
