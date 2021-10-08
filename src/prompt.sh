@@ -15,9 +15,13 @@ console_prompt_hidden()
   )
 }
 
+is_graphical() {
+  [ -n "$DISPLAY" ] && { [ -z "$ZPASS_PRIORITIZE_CLI" ] || ! [ -t 0 ] ; }
+}
+
 # $1 = prompt message
 prompt_password() {
-  if [ -n "$DISPLAY" ]
+  if is_graphical
   then
     if which kdialog >/dev/null 2>&2
     then kdialog --title "$fname" --password "$1" 2>/dev/null

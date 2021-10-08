@@ -43,6 +43,7 @@ usage()
   ZPASS_SSH_ID                                                  SSH private key to use for scp/sftp
   ZPASS_REMOTE_USER                                             User for login
   ZPASS_REMOTE_PASSWORD                                         Password for ftps/webdav login. Not for SSH
+  ZPASS_PRIORITIZE_CLI                                          Key prompt will always be done on CLI if stdin is a tty
 
 All operations can be shortened to their first char unless specified
 Unknown first argument will perform the operation described in 'ZPASS_UNK_OP_CALL' on that argument
