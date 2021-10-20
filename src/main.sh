@@ -28,11 +28,11 @@ case $arg in
   ch|cached)        get_key_cached >/dev/null ;;
   rmc|rm-cache)     delete_cache 0 >/dev/null ;;
   c|create)         create_file ;;
-  t|tree)           sanitize_paths "$@" && _tree "$@"  ;;
-  s|set)            sanitize_paths "$1" && _set "$@"   ;;
-  f|file)           sanitize_paths "$1" && fileset "$@" ;;
-  a|add)            sanitize_paths "$@" && add "$@"    ;;
-  n|new)            sanitize_paths "$@" && new "$@"    ;;
+  t|tree)           sanitize_paths "$@" && _tree "$@" ;;
+  s|set)            sanitize_paths "$1" && _set "$@" && cond_copy "$1" ;;
+  f|file)           sanitize_paths "$1" && fileset "$@" && cond_copy "$1";;
+  a|add)            sanitize_paths "$@" && add "$@" && shift $(($#-1)) && cond_copy "$1";;
+  n|new)            sanitize_paths "$@" && new "$@" && shift $(($#-1)) && cond_copy "$1";;
   g|get)            sanitize_paths "$@" && get "$@"    ;;
   x|copy)           sanitize_paths "$1" && copy "$1"   ;;
   l|ls|list)        sanitize_paths "$@" && __NOPACK=y archive_exec ls -Ap1 -- "$@"   ;;

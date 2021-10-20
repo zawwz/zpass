@@ -99,3 +99,9 @@ move()
     mv -f -- "$@"
   ' zpass "$@"
 }
+
+cond_copy() {
+  if [ "$ZPASS_COPY_ON_EDIT" = true ] ; then
+    copy "$1"
+  fi
+}
