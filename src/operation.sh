@@ -47,13 +47,14 @@ new()
   [ $# -lt 1 ] && return 1
   archive_exec sh -c '#LXSH_PARSE_MINIFY
     len=$1
-    shift 1
+    rset=$2
+    shift 2
     for N
     do
       mkdir -p "$(dirname "$N")" || exit $?
-      { tr -cd "a-zA-Z0-9\!-." < /dev/urandom | head -c$len && echo; } > "$N" || exit $?
+      { tr -cd "$rset" < /dev/urandom | head -c$len && echo; } > "$N" || exit $?
     done
-  ' zpass "$ZPASS_RAND_LEN" "$@"
+  ' zpass "$ZPASS_RAND_LEN" "$ZPASS_RAND_SET" "$@"
 }
 
 # $1 = path , $@ = value
