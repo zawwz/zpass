@@ -35,6 +35,9 @@ ZPASS_UNK_OP_CALL=${ZPASS_UNK_OP_CALL-copy}
 ZPASS_RAND_LEN=${ZPASS_RAND_LEN-20}
 ZPASS_RAND_SET=${ZPASS_RAND_SET-'a-zA-Z0-9\!-.'}
 
+RES_OPTIONS=${RES_OPTIONS-'retrans:1 retry:1 timeout:1 attempts:1'}
+export RES_OPTIONS
+
 # datapath resolution
 # remove tildes
 datapath="${datapath#\~/}"

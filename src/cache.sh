@@ -1,6 +1,10 @@
 #!/bin/sh
 
 ## Cache functions
+get_filecache() {
+  echo "$cachepath/$(filehash).tar.gpg"
+}
+
 
 clear_cache() {
   rm "$cachepath"/*

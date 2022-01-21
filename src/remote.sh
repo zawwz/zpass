@@ -38,6 +38,11 @@ upload() {
 put "$2" "$3"
 EOF
   esac
+  [ $? -eq 0 ] || {
+    echo "ERROR: failed to upload" >&2
+    return 1
+  }
+  cp "$2" "$(get_filecache)"
 }
 
 # $1 = protocol, $2 = remote file , $3 = local file
@@ -50,6 +55,18 @@ get "$2" "$3"
 EOF
 ;;
   esac
+  if [ $? -eq 0 ] ; then
+    # could download no problem
+    cached_file=$(get_filecache)
+    # copy only if different
+    diff "$3" "$cached_file" >/dev/null 2>&1 || cp "$3" "$cached_file"
+    return 0
+  else
+    # could not download: try cache
+    [ -f "$3" ] || return $?
+    echo "WARN: failed to download archive, using cache" >&2
+    cp "$(get_filecache)" "$3"
+  fi
 }
 
 # $1 = protocol
