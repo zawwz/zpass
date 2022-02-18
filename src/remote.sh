@@ -47,6 +47,11 @@ EOF
 
 # $1 = protocol, $2 = remote file , $3 = local file
 download() {
+  if [ "$_ZPASS_USE_CACHE" = true ] && [ -f "$(get_filecache)" ] ; then
+    cp "$(get_filecache)" "$3"
+    return $?
+  fi
+
   case $1 in
     scp) scp_cmd "${remote_user+${remote_user}@}$remote_host:$2" "$3" ;;
     webdav) webdav_cmd "$2" > "$3" ;;

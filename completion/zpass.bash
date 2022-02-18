@@ -29,6 +29,8 @@ _zpass_completion()
   local cur=$2
   COMPREPLY=()
 
+  export _ZPASS_USE_CACHE=true
+
   if  { [ "$COMP_CWORD" -eq "2" ] && echo "$_cw1_val1" | grep -qw -- "${COMP_WORDS[1]}" ; } ||
       { [ "$COMP_CWORD" -gt "1" ] && echo "$_cw1_val_all" | grep -qw -- "${COMP_WORDS[1]}"; } ; then
 

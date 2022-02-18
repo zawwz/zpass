@@ -1,5 +1,5 @@
 
-var_exclude = ZPASS_.* XDG_.* REMOTE_.* DISPLAY CONFIGFILE TMPDIR DEBUG
+var_exclude = _ZPASS_.* ZPASS_.* XDG_.* REMOTE_.* DISPLAY CONFIGFILE TMPDIR DEBUG
 fct_exclude = _stop sftp_cmd ftps_cmd upload download list delete create
 
 zpass: src/*
