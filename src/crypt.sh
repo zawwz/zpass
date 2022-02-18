@@ -2,13 +2,15 @@
 
 # $1 = key
 encrypt() {
-  gpg --pinentry-mode loopback --batch --passphrase "$1" -o - -c -
+  gzip | openssl enc -aes-256-cbc -pbkdf2 -salt -in - -out - -k "$1"
 }
 
 # $1 = key , $2 = keyfile to write
 decrypt_with_key()
 {
-  gpg --pinentry-mode loopback --batch --passphrase "$1" -o - -d "$file" 2>/dev/null || return $?
+  {
+    openssl enc -d -aes-256-cbc -pbkdf2 -in "$file" -out - -k "$1" || return $?
+  } | gzip -d
   [ -n "$2" ] && echo "$1" > "$2"
   return 0
 }

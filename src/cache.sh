@@ -2,7 +2,7 @@
 
 ## Cache functions
 get_filecache() {
-  echo "$cachepath/$(filehash).tar.gpg"
+  echo "$cachepath/$(filehash)$ZPASS_EXTENSION"
 }
 
 
