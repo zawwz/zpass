@@ -5,18 +5,34 @@ get_filecache() {
   echo "$cachepath/$(filehash)$ZPASS_EXTENSION"
 }
 
-
 clear_cache() {
-  rm "$cachepath"/*
+  rm -f "$cachepath"/*
+  if [ -S "$sockpath" ] ; then
+    agent_cli clear
+  fi
 }
 
 write_cache() {
-  echo "$1" > "$cachepath/$(keyfile)"
-  delete_cache "$ZPASS_KEY_CACHE_TIME"
+  if [ -S "$sockpath" ] ; then
+    agent_cli set "$(keyfile)" "$1" "$ZPASS_KEY_CACHE_TIME" >/dev/null
+  else
+    echo "$1" > "$cachepath/$(keyfile)"
+    delete_cache "$ZPASS_KEY_CACHE_TIME"
+  fi
 }
 
 get_key_cached() {
-  cat "$cachepath/$(keyfile)" 2>/dev/null
+  if [ -S "$sockpath" ] ; then
+    out=$(agent_cli get "$(keyfile)")
+    if [ "$out" != "" ] ; then
+      echo "$out"
+      return 0
+    else
+      return 1
+    fi
+  else
+    cat "$cachepath/$(keyfile)" 2>/dev/null
+  fi
 }
 
 # $1 = delay in sec

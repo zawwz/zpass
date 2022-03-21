@@ -5,6 +5,7 @@ usage()
 {
   echo "$fname [options] <operation>
 [Global Operations]:
+  agent                 Start caching agent, based on redis server
   list-files            List eligible files in data path. Shortcut 'lsf'
   cache-clear           Delete all cached keys. Shortcut 'cc'
   help                  Display help
@@ -31,6 +32,7 @@ usage()
   CONFIGFILE              '\$XDG_CONFIG_HOME/zpass/defaut.conf'  Path to the config file to load
   ZPASS_PATH              '\$XDG_DATA_HOME/zpass'                Folder containing password files
   ZPASS_CACHE_PATH        '\$XDG_CACHE_HOME/zpass'               Path used for caching keys
+  ZPASS_CACHE_SOCK        '\$XDG_RUNTIME_DIR/zpass.socket'       Socket file for redis caching server
   ZPASS_FILE              'default'                             File to use for operations
   ZPASS_KEY                                                     Key to use for encrypting/decrypting files
   ZPASS_KEY_CACHE_TIME    '60'                                  Time a key stays in cache for decrypting, in seconds

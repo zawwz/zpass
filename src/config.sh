@@ -2,10 +2,9 @@
 
 # XDG config/cache
 datapath=".local/share/zpass"
-cachepath="$HOME/.cache/zpass"
-configpath="$HOME/.config/zpass"
-[ -n "$XDG_CONFIG_HOME" ] && configpath="$XDG_CONFIG_HOME/zpass"
-[ -n "$XDG_CACHE_HOME" ] && cachepath="$XDG_CACHE_HOME/zpass"
+
+cachepath=${XDG_CACHE_HOME-$HOME/.cache}/zpass
+configpath=${XDG_CONFIG_HOME-$HOME/.config}/zpass
 CONFIGFILE=${CONFIGFILE-$configpath/default.conf}
 
 [ -z "$TMPDIR" ] && TMPDIR=/tmp
@@ -25,6 +24,7 @@ rm -f "$tmpenv" 2>/dev/null
 # resolve zpass_path
 datapath=${ZPASS_PATH-$datapath}
 cachepath=${ZPASS_CACHE_PATH-$cachepath}
+sockpath=${ZPASS_CACHE_SOCK-$XDG_RUNTIME_DIR/zpass.socket}
 
 # default ZPASS
 ZPASS_FILE=${ZPASS_FILE-default}

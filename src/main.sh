@@ -22,6 +22,7 @@ shift 1
 
 case $arg in
   -h|h|help)        usage && exit 1;;
+  agent)            start_agent "$@" ;;
   lsf|list-files)   list_files ;;
   rmf|rm-file)      remove_files "$@" ;;
   cc|cache-clear)   clear_cache 2>/dev/null ;;
