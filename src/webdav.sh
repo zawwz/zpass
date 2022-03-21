@@ -12,7 +12,7 @@ webdav_cmd() {
 }
 
 webdav_list() {
-  webdav_cmd "$datapath/" -X PROPFIND --upload-file - -H "Depth: 1" << EOF | grep '<D:href>' | cut -d'>' -f2 | cut -d'<' -f1 | sed "s|^/$datapath/||g"
+  webdav_cmd "${datapath%/}/" -X PROPFIND --upload-file - -H "Depth: 1" << EOF | xmllint --xpath "//*[local-name()='href']" - | sed "s/<[/a-zA-Z]*:href>//g;s|^/$datapath/||g;/^$/d"
 <?xml version="1.0"?>
 <a:propfind xmlns:a="DAV:">
 <a:prop><a:resourcetype/></a:prop>
