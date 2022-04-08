@@ -33,7 +33,7 @@ pack()
     rm -f "$1/$archive" 2>/dev/null
     return $ret
   else
-    mv -f "$1/$archive" "$file"
+    mv -f "$1/$archive" "$FILE"
   fi
 }
 
@@ -43,7 +43,7 @@ archive_exec()
 {
   err=0
   # tmp files
-  archive_tmpdir="$TMPDIR/zpass_$(randalnum 20)"
+  archive_tmpdir="$(tmprand)"
   keyfile="$archive_tmpdir/$(randalnum 20).key"
   mkdir -p "$archive_tmpdir" || exit $?
   chmod 700 "$archive_tmpdir" || exit $?
@@ -66,9 +66,7 @@ archive_exec()
 create_file() {
   if [ -n "$remote_host" ] ; then
     file="$TMPDIR/zpass_$(filehash)$ZPASS_EXTENSION"
-    tmpfile=$file
-    if remote download "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" "$file" >/dev/null 2>&1 ; then
-      local archive_tmpdir="$TMPDIR/zpass_$(randalnum 20)"
+    if base64contents=$(remote download "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" 2>&1) ; then
 
       # unpack locally
       remote_host= unpack "$archive_tmpdir" || {

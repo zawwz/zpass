@@ -8,9 +8,13 @@ encrypt() {
 # $1 = key , $2 = keyfile to write
 decrypt_with_key()
 {
-  {
-    openssl enc -d -aes-256-cbc -pbkdf2 -in "$file" -out - -k "$1" || return $?
-  } | gzip -d
+  # evil pipeline return status hack
+  { { { {
+    openssl enc -d -aes-256-cbc -pbkdf2 -in - -out - -k "$1"; echo $? >&3
+  } | gzip -d >&4; } 3>&1; } | { read xs; [ $xs -eq 0 ]; } } 4>&1 || {
+    echo "Decrypt failed" >&2
+    return 1
+  }
   [ -n "$2" ] && echo "$1" > "$2"
   return 0
 }
@@ -19,19 +23,19 @@ decrypt_with_key()
 decrypt()
 {
   # get remote file
-  [ -n "$remote_host" ] && {
-    file="$TMPDIR/zpass_$(filehash)$ZPASS_EXTENSION"
-    tmpfile=$file
-    remote download "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" "$file" >/dev/null || return $?
-  }
-  cat "$file" >/dev/null 2>&1 || { echo "File doesn't exist. Use 'zpass create' to create the file" >&2 && return 1; } # no file
+  local base64file
+  if [ -n "$remote_host" ] ; then
+    base64file=$(remote download "$datapath/$ZPASS_FILE$ZPASS_EXTENSION" | base64) || return $?
+  else
+    base64file=$(base64 "$file" 2>/dev/null) || { echo "File doesn't exist. Use 'zpass create' to create the file" >&2 && return 1; } # no file
+  fi
 
   if [ -n "$ZPASS_KEY" ]
   then # key given already
-    decrypt_with_key "$ZPASS_KEY" "$1" ; ret=$?
+    base64 -d <<< "$base64file" | decrypt_with_key "$ZPASS_KEY" "$1" ; ret=$?
   else # prompt for key
     # attempt decrypt from cache
-    key=$(get_key_cached) && decrypt_with_key "$key" "$1"
+    key=$(get_key_cached) && base64 -d <<< "$base64file" | decrypt_with_key "$key" "$1"
     ret=$?
     if [ $ret -ne 0 ]
     then
@@ -43,13 +47,11 @@ decrypt()
       do
         key=$(ask_key) || { echo "Cancelled" >&2 && return 100 ; }
         tries=$((tries+1))
-        decrypt_with_key "$key" "$1" ; ret=$?
+        base64 -d <<< "$base64file" | decrypt_with_key "$key" "$1" ; ret=$?
+        [ $ret -eq 0 ] && { write_cache "$key" & };
       done
     fi
   fi
-
-  # remove temporary file
-  [ -n "$remote_host" ] && rm -rf "$file" 2>/dev/null
 
   [ $ret -ne 0 ] && { echo "Could not decrypt '$file'" >&2 ; }
   return $ret

@@ -4,6 +4,10 @@ error(){
   ret=$1 && shift 1 && echo "$*" >&2 && exit $ret
 }
 
+tmprand() {
+  echo "$TMPDIR/zpass_$(randalnum 20)"
+}
+
 randalnum() {
   tr -cd 'a-zA-Z0-9' < /dev/urandom | head -c $1
 }

@@ -25,11 +25,8 @@ agent_cli() {
       echo "set $1 \"$(escape "$2")\""
       echo "expire $1 $3"
       ;;
-    get)
-      echo "get $1"
-      ;;
-    clear)
-      echo "FLUSHDB"
-      ;;
+    expire) echo "expire $1 $2" ;;
+    get) echo "get $1" ;;
+    clear) echo "FLUSHDB" ;;
   esac | redis_cli "$(sockpath)"
 }

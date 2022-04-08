@@ -45,32 +45,44 @@ EOF
   cp "$2" "$(get_filecache)"
 }
 
-# $1 = protocol, $2 = remote file , $3 = local file
+# $1 = protocol, $2 = remote file
 download() {
   if [ "$_ZPASS_USE_CACHE" = true ] && [ -f "$(get_filecache)" ] ; then
     cp "$(get_filecache)" "$3"
     return $?
   fi
 
-  case $1 in
-    scp) scp_cmd "${remote_user+${remote_user}@}$remote_host:$2" "$3" ;;
-    webdav) webdav_cmd "$2" > "$3" ;;
-    sftp|ftps) ${1}_cmd >/dev/null << EOF
-get "$2" "$3"
-EOF
-;;
-  esac
+  # store file to base64
+  local base64file
+  base64file=$(
+    # evil pipeline return status hack
+    { { { {
+    case $1 in
+      scp) scp_cmd "${remote_user+${remote_user}@}$remote_host:$2" "/dev/stdout" ;;
+      webdav) webdav_cmd "$2" ;;
+      sftp|ftps)
+        tmpfile=$(tmprand)
+        ${1}_cmd >/dev/null <<< "get \"$2\" \"$tmpfile\""
+        stat=$?
+        cat "$tmpfile"
+        rm "$tmpfile"
+        [ $stat -eq 0 ]
+      ;;
+    esac; echo $? >&3
+    } | base64 >&4; } 3>&1; } | { read xs; [ $xs -eq 0 ]; } } 4>&1
+  )
+
   if [ $? -eq 0 ] ; then
-    # could download no problem
+    # write to cache only if different
     cached_file=$(get_filecache)
-    # copy only if different
-    diff "$3" "$cached_file" >/dev/null 2>&1 || cp "$3" "$cached_file"
+    base64 -d <<< "$base64file" | diff - "$cached_file" >/dev/null 2>&1 || base64 -d <<< "$base64file" > "$cached_file"
+    base64 -d <<< "$base64file"
     return 0
   else
     # could not download: try cache
     [ -f "$3" ] || return $?
     echo "WARN: failed to download archive, using cache" >&2
-    cp "$(get_filecache)" "$3"
+    cat "$(get_filecache)"
   fi
 }
 

@@ -37,11 +37,14 @@ get_key_cached() {
 
 # $1 = delay in sec
 delete_cache() {
-  if [ "$1" -gt 0 ] 2>/dev/null
-  then
-    nohup sh -c "sleep $1;rm -f '$cachepath/$(keyfile)'" >/dev/null 2>&1 &
+  if [ -S "$sockpath" ] ; then
+    agent_cli expire "$(keyfile)" "$1" >/dev/null
   else
-    rm -f "$cachepath/$(keyfile)" 2>/dev/null
+    if [ "$1" -gt 0 ] 2>/dev/null ; then
+      nohup sh -c "sleep $1;rm -f '$cachepath/$(keyfile)'" >/dev/null 2>&1 &
+    else
+      rm -f "$cachepath/$(keyfile)" 2>/dev/null
+    fi
   fi
 }
 

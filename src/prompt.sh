@@ -60,6 +60,5 @@ ask_key() {
   message="Enter key"
   [ -n "$1" ] && message="$1"
   key=$(prompt_password "$message") || return $?
-  write_cache "$key" &
   echo "$key"
 }
