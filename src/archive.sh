@@ -45,6 +45,8 @@ archive_exec()
   # tmp files
   archive_tmpdir="$TMPDIR/zpass_$(randalnum 20)"
   keyfile="$archive_tmpdir/$(randalnum 20).key"
+  mkdir -p "$archive_tmpdir" || exit $?
+  chmod 700 "$archive_tmpdir" || exit $?
   # operation
   (
     # unpack
