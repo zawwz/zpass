@@ -4,7 +4,7 @@ sockpath() {
 }
 
 start_agent() {
-  redis-server --save "" --unixsocket "$(sockpath)" --unixsocketperm 700
+  redis-server --save "" --port 0 --unixsocket "$(sockpath)" --unixsocketperm 700
 }
 
 # $1 = socket
