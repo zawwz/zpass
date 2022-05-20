@@ -6,6 +6,15 @@ _completion_check_expands() {
   shift 1
   local matching=()
   local N=0
+
+  if [ -z "$arg" ] ; then
+    local superset=${1:0:1}
+    for N ; do
+      [ "${N#"$superset"}" = "$N" ] && return 1
+    done
+    return 0
+  fi
+
   for I ; do
     [ "$I" != "${I#"$arg"}" ] && matching[N++]=$I
   done
@@ -40,10 +49,11 @@ _zpass_completion()
     [ "${dir}" = "${dir%/}" ] && dir=$(dirname "$2")
 
     N=0
-    for j in $(zpass ls "$dir") ; do
+    for j in $(zpass ls "$dir" 2>/dev/null) ; do
      [ "$j" = "${j%/}" ] && j="$j "
      WORDS[N++]=$j
     done
+
     cur=$(basename "$cur")
     [ "$2" != "${2%/}" ] && cur=""
 
@@ -58,7 +68,7 @@ _zpass_completion()
       fi
       N=0
       for I in "${COMPREPLY[@]}" ; do
-        local tt="$dir/$I"
+        local tt="${dir%/}/$I"
         COMPREPLY[N++]="${tt#./}"
       done
     else
